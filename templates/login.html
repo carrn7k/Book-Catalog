@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div id="login-wrap">
+	<h3 class="text-center">Google Sign In</h3>
+	<div>Our current state is {{ state }}</div>
+	<div class="text-center">
+		<button class="text-center" id="signinButton">Login</button>
+	</div>
+</div>
+
+<div id="result"></div>
+
+<script>
+  $('#signinButton').click(function() {
+    // signInCallback defined in step 6.
+    auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
+  });
+
+  function signInCallback(authResult) {
+  if (authResult['code']) {
+
+    // Hide the sign-in button now that the user is authorized, for example:
+    $('#signinButton').attr('style', 'display: none');
+
+    // Send the code to the server
+    $.ajax({
+      type: 'POST',
+      url: '/gconnect',
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+        // Handle or verify the server response if necessary.
+        	if (result) {
+          		$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...');
+         		setTimeout(function() {
+          			window.location.href = "/restaurant";
+         		}, 4000);
+         	}
+         },
+       processData: false,
+       data: authResult['code']
+    });
+	} else if (authResult['error']) {
+		$("#result").html('There was an error :(');
+  	} else {
+  		$("#result").html('Could not make server side call');
+  	}
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>Book Description</h1>
+<br>
+<div>
+	<div>Written by -- {{ book.author.name }}
+	<h3>{{ book.title }}</h3>
+	<p>{{ book.summary }}</p>
+</div>
+
+{% endblock %}

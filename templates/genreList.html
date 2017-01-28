@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+<h1>{{ genre.genre }}</h1>
+
+{% for book in books %}
+<div><a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a></div>
+{% endfor %}
+
+{% endblock %}

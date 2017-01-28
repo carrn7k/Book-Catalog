@@ -1,0 +1,53 @@
+{% extends "main.html" %}
+
+{% block content %}
+
+	<div class="row" id="mainImgWrap">
+		<div class="col-sm-12">
+			<img src="/static/images/book_test.jpg" alt="Main Image" id="main-image">
+		</div>
+	</div>
+	<div class="row srchWrap">
+		<div class="col-sm-12">
+			<form id="search-bar">
+				<input type="text">
+			</form>
+		</div>
+	</div>
+	
+	<main>
+		<div class="row">
+			<div class="col-sm-12">
+				<h2 id="featured">Featured Books</h2>
+			</div>
+		</div>
+		<div class="row m-container">
+			<div class="col-sm-12">
+				<h5 class="popular">Popular Books</h5>
+			</div>
+		</div>
+		{% for book in books %}
+		<div class="row m-container" id="pop-books">
+			<div class="col-sm-6" id="b-info-cont">
+				<div class="book-title">{{ book.title }}</div>
+				<div class="book-summary">{{ book.summary }}</div>
+			</div>
+			<div class="col-sm-6">
+				<img src="http://placehold.it/155x155" class="text-center" id="pop-image">
+			</div>
+		</div>
+		{% endfor %}
+		<div class="row">
+			<div class="col-sm-12">
+				<h3>Featured Author</h3>
+			</div>
+			<div>
+				<h4>{{ author.name }}</h4>
+			</div>
+		</div>
+
+			<div class="col-sm-12" id="scroll-test"></div>
+		</div>
+	</main>
+
+{% endblock %}
