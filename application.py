@@ -53,11 +53,13 @@ def gconnect():
     userid = credentials.id_token['sub']
     email = credentials.id_token['email']
 
+def get_genres():
+    return session.query(Genre).all()
 
 @app.route('/')
 @app.route('/catalog/')
 def showGenres():
-    genres = session.query(Genre).all()
+    genres = get_genres()
     feat_books = session.query(Books).order_by(desc(Books.created)).limit(4).all()
     authors = session.query(Author).all()
 
@@ -74,24 +76,30 @@ def showGenres():
 
 @app.route('/catalog/genre/<int:genre_id>/')
 def showGenreList(genre_id):
+    genres = get_genres()
     genre = session.query(Genre).filter_by(id = genre_id).one()
     genre_books = genre.books
     #books = session.query(Books).filter_by(genre_id = genre_id).all()
-    return render_template('genreList.html', genre=genre,
+    return render_template('genreList.html', genre=genre, genres=genres,
                            books=genre_books)
 
 @app.route('/catalog/authors/')
 def showAuthors():
+    genres = get_genres()
     authors = session.query(Author).all()
-    return render_template('authorlist.html', authors=authors)
+    return render_template('authorlist.html', authors=authors,
+                           genres=genres)
 
 @app.route('/catalog/<int:book_id>/book/')
 def showBook(book_id):
+    genres = get_genres()
     book = session.query(Books).filter_by(id = book_id).one()
-    return render_template('bookDescription.html', book=book)
+    return render_template('bookDescription.html', book=book,
+                           genres=genres)
 
 @app.route('/catalog/book/new/', methods=['GET', 'POST'])
 def createBook():
+    genres = get_genres()
     if request.method == 'POST':
         new_book = Books(title=request.form['title'],
                         summary=request.form['summary'])
@@ -111,10 +119,11 @@ def createBook():
         session.commit()
         return redirect(url_for('showBook', book_id=new_book.id))
     else:
-        return render_template('addBook.html')
+        return render_template('addBook.html', genres=genres)
 
 @app.route('/catalog/<int:book_id>/book/edit/', methods=['GET', 'POST'])
 def editBook(book_id):
+    genres = get_genres()
     edit_book = session.query(Books).filter_by(id = book_id).one()
     if request.method == 'POST':
         if request.form['newTitle']:
@@ -133,17 +142,20 @@ def editBook(book_id):
         session.commit()
         return redirect(url_for('showBook', book_id=edit_book.id))
     else:
-        return render_template('edit.html', book=edit_book)
+        return render_template('edit.html', book=edit_book,
+                               genres=genres)
 
 @app.route('/catalog/<int:book_id>/book/delete/', methods=['GET', 'POST'])
 def deleteBook(book_id):
+    genres = get_genres()
     delete_book = session.query(Books).filter_by(id = book_id).one()
     if request.method == 'POST':
         session.delete(delete_book)
         session.commit()
         return redirect(url_for('showGenres'))
     else:
-        return render_template('delete.html', book=delete_book)
+        return render_template('delete.html', book=delete_book,
+                               genres=genres)
 
 if __name__ == '__main__':
     app.debug = True

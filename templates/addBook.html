@@ -2,13 +2,18 @@
 
 {% block content %}
 
-<div>Add Book</div>
 
-<form method="post">
-	<div><input type="text" name="title"></div>
-	<div><textarea name="summary"></textarea></div>
-	<div><input type="text" name="author"></div>
-	<input type="submit" value="create">
-</form>
+<div class="row" id="add-container">
+	<h4>Add a New Book</h4>
+	<form method="post">
+		<label for="add-title"><span>Title</span></label>
+		<input type="text" class="add-input" name="title" id="add-title">
+		<label for="add-author"><span>Author</span></label>
+		<input type="text" class="add-input" name="add-author">
+		<label for="add-summary"><span>Summary</span></label>		
+		<textarea name="summary" class="add-input" id="add-summary"></textarea>
+		<label><span>&nbsp;</span><input type="submit" value="create" id="create-btn"></label>
+	</form>
+</div>
 
 {% endblock %}
