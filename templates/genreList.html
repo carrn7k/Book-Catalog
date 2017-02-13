@@ -1,41 +1,62 @@
 {% extends "main.html" %}
 
+{% block body %}
+<body id="genre-li-body"></body>
+{% endblock %}
+
 {% block content %}
+<div class="container" id="genre-container" data-books="{{ j_books }}">
 
-
-<section>
-<div class="row" id="genre-li-container">
-	<h4>{{ genre.genre }}</h4>
-	<div class="row" id="genres-container">
-		{% for book in books %}
-		<div class="col-sm-6 genre-item">
-			<a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a>
+	<div class="container" id="genre-li-container">
+		<div class="row">
+			<h4>{{ genre.genre }}</h4>
 		</div>
-		<!--PLACEHOLDERS-->
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
+		<div class="row" id="genres-container">
+			{% for book in books %}
+			<div class="col-sm-6 genre-item" data-id="{{ book.id }}">
+				<!--<a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a>-->
+				<a href="#">{{ book.title }}</a>
+			</div>
+			{% endfor %}
+			<!--PLACEHOLDERS-->
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
+			<div class="col-xs-6 genre-item">
+				<a href="#">The Big Bang</a>
+			</div>
 		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		<div class="col-sm-6 genre-item">
-			<a href="#">The Big Bang</a>
-		</div>
-		{% endfor %}
 	</div>
+
+	<div class="container" id="current-genre">
+		<div class="row">
+			<h3 id="current-title"></h3>
+		</div>
+		<div class="row">
+			<img src="http://placehold.it/350x150">
+		</div>
+		<div class="row">
+			<p id="current-author"></p>
+		<div class="row">
+			<p id="current-summary"></p>
+		</div>
+	</div>
+
 </div>
-</section>
 
 {% endblock %}

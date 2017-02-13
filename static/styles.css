@@ -5,15 +5,20 @@ table {
 td {
 	padding: 5px 10px 5px 10px;
 }
-
+.flex {
+	display: flex;
+	flex-wrap: wrap;
+}
 #title {
 	position: relative;
 	bottom: 10px;
     margin-bottom: -5px;
+}
+#title a {
+	color: white;
 	font-family: 'Tangerine', cursive;
     font-size: 42px;
     font-weight: 700;
-    color: white;
 }
 #user-login {
 	top: 10px;
@@ -23,6 +28,7 @@ td {
 	width: 100%;
 	z-index: 2;
 	background-color: #420200;
+	box-shadow: black 1px 5px 12px;
 }
 
 /* Mobile */
@@ -235,18 +241,37 @@ td {
 
 /*login page*/
 #login-wrap {
+	margin-top: 75px;
 	margin-right: auto;
 	margin-left: auto;
 	width: 300px;
 	height: 200px;
 	background: grey;
 }
+#login-container {
+	height: 175px;
+	border: 5px solid grey;
+	background-color: white;
+}
+#g-sign-in {
+	position: absolute;
+	margin-left: 25px;
+	margin-top: 50px;
+}
+#fb-sign-in {
+	position: absolute;
+	right: 125px;
+	margin-top: 50px;
+}
 
 /***** ADD BOOK PAGE ******/
-
+#add-section {
+	background-image: url('/static/images/book_test.jpg');
+	background-color: black;
+}
 #add-container {
 	margin-top: 75px;
-	height: 355px;
+	height: 550px;
 	background-color: #f3d4a0;
 }
 #add-container form {
@@ -259,8 +284,8 @@ td {
 	border-bottom: 1px solid #420200;
 }
 #add-container label {
-	display: block;
-	margin: 0 0 15px 0;
+	display: flex;
+	margin: 0;
 	font-size: 13px;
     font-family: monospace;
     color: #420200;
@@ -282,8 +307,8 @@ td {
 	padding: 7px;
 }
 #add-container textarea {
-	height: 120px;
-	width: 239px;
+	height: 170px;
+	width: 448px;
 	resize: none;
 }
 #create-btn {
@@ -291,46 +316,135 @@ td {
 }
 
 /***** GENNRE LIST *******/
-
+#genre-container {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+#genre-li-body {
+	background-repeat: no-repeat;
+	background-size: 1000px;
+	background-image: url('/static/images/book_test.jpg');
+}
 #genre-li-container {
 	min-height: 300px;
 	margin: 5em 2px 0 2px;
 	padding: 3px 4px 3px 4px;
-	background-color: #f3d4a0;
-	border: 5px solid black;
+	background-color: rgba(255, 255, 255, 0.61)
 	border-radius: 2px;
-	box-shadow: #292929 2px 5px 16px;
 }
 #genres-container {
+	padding-left: 5px;
 	display: flex;
 	flex-wrap: wrap;
+	min-height: 100px;
+	background-color: white;
 } 
 #genre-li-container h4 {
+	width: 90%;
+	margin-left: 15px;
+	margin-top: 27px;
+	color: #420200;
+	font-size: 32px;
 	font-weight: bold;
 	font-family: 'Open Sans Condensed', sans-serif;
 	border-bottom: 1px solid #420200;
+	box-shadow: #000000 0px 19px 6px 12px;
+    background-color: white;
+    padding: 0 0 3px 7px;
 }
 .genre-item {
 	width: 50%;
 }
 .genre-item a {
-	padding: 3px 0 3px 0;
+	margin: 2px;
+	padding: 4px 0 4px 3px;
     display: block;
     font-size: 11px;
     line-height: 12px;
 }
 .genre-item a:before {
-	content: '- ';
+	content: '';
 }
 .genre-item a:hover {
 	text-decoration: none;
-	color: #7b7b7b;
+	background: grey;
+	color: white;
 	text-shadow: #7b7b7b 2px 2px 2px;
+}
+
+#current-genre {
+	visibility: hidden;
+	height: 500px;
+	background-color: white;
+	border: 3px solid black;
+	border-radius: 2px;
+}
+#current-title {
+	padding: 0 0 10px 15px;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-family: 'Open Sans Condensed', sans-serif;
+}
+#current-genre img {
+	width: 100%;
+	height: 300px;
+	padding: 5px;
+	text-align: center;
+}
+#current-genre p {
+	padding-top: 5px;
+	padding-left: 5px;
+}
+
+#current-summary {
+	height: 80px;
+	margin-left: 20px;
+	padding: 5px 20px 5px 20px;
+	overflow: scroll;
 }
 
 
 /* MEDIA QUERIES */
-@media screen and (min-width: 640px) {
+@media screen and (min-width: 400px) {
+	.genre-item {
+		width: 33%;
+	}
+}
+@media screen and (min-width: 580px) {
+	.container {
+		width: 100%;
+	}
+	#genre-container {
+		display: flex;
+	}
+	#genres-container {
+		background-color: inherit;
+	}
+	#genre-li-container {
+		width: 33%;
+	}
+	#genre-li-container h4 {
+		box-shadow: #000000 0px 5px 4px 14px;
+	}
+	.genre-item {
+		width: 100%;
+	}
+	#current-genre {
+		visibility: visible;
+		width: 66%;
+		margin-top: 70px;
+    	margin-left: 5px;
+	}
+	.genre-item a {
+		background-color: #ffffff;
+	    background: linear-gradient(#cccccc, white);
+	    border-radius: 2px;
+	    box-shadow: black 3px 2px 2px;
+	}
+}
+
+/*@media screen and (min-width: 640px) {
 	.navWrap {
 		display: none;
 	}
@@ -342,4 +456,4 @@ td {
 	#mainImgWrap {
 		display: none;
 	}
-}
+}*/

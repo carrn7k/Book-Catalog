@@ -9,10 +9,22 @@
 		<label for="add-title"><span>Title</span></label>
 		<input type="text" class="add-input" name="title" id="add-title">
 		<label for="add-author"><span>Author</span></label>
-		<input type="text" class="add-input" name="add-author">
+		<input type="text" class="add-input" name="author" id="add-author">
 		<label for="add-summary"><span>Summary</span></label>		
 		<textarea name="summary" class="add-input" id="add-summary"></textarea>
-		<label><span>&nbsp;</span><input type="submit" value="create" id="create-btn"></label>
+		<label for="add-genre"><span>Genre</span></label>
+		<div class="row">
+			<div class="col-xs-6">
+				<select name="genres" class="add-input" id="add-genre">
+					{% for genre in genres %}
+		  			<option value="{{ genre.genre }}">{{ genre.genre }}</option>
+		  			{% endfor %}
+				</select>
+			</div>
+			<div class="col-xs-6">
+				<label><span>&nbsp;</span><input type="submit" value="create" id="create-btn"></label>
+			</div>
+		</div>
 	</form>
 </div>
 

@@ -21,12 +21,28 @@ class Genre(Base):
     id = Column(Integer, primary_key=True)
     genre = Column(String(250), nullable=False)
 
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'genre'         : self.genre,
+           'id'           : self.id,
+       }
+
 class Author(Base):
     __tablename__ = 'author'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     created = Column(DateTime)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'id'           : self.id,
+           'name'         : self.name,
+       }
 
 class Books(Base):
     __tablename__ = 'books'
@@ -44,6 +60,18 @@ class Books(Base):
 
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+
+    @property
+    def serialize(self):
+       """Return object data in easily serializeable format"""
+       return {
+           'id'           : self.id,
+           'title'        : self.title,
+           'summary'      : self.summary,
+           'author'       : self.author.name,
+           'genre'        : self.genre.genre,
+       }
+    
 
 Genre.books = relationship(Books, back_populates='genre')
 Author.books = relationship(Books, back_populates='author')

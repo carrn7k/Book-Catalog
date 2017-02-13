@@ -1,52 +1,114 @@
 {% extends "main.html" %}
 
 {% block content %}
+
 <div id="login-wrap">
-	<h3 class="text-center">Google Sign In</h3>
-	<div>Our current state is {{ state }}</div>
-	<div class="text-center">
-		<button class="text-center" id="signinButton">Login</button>
-	</div>
+  <div class="text-center">
+    <div id="login-container">
+      <h4 class="text-center">Sign in with Google or Facebook</h4>
+      <div class="g-signin2" 
+            data-scope="openid email"
+            data-clientid="370308867553-kf903h8h7t1doue4etpo0btu5jhabmbh.apps.googleusercontent.com"
+            data-redirecturi="postmessage"
+            data-accesstype="offline"
+            data-cookiepolicy="single_host_origin"
+            data-onsuccess="onSignIn"
+            data-onfailure="onSignInFailure"
+            data-approvalprompt="force"
+            data-width="93"
+            data-height="23">
+      </div>
+      <fb:login-button class="col-xs-6" id="fb-sign-in" scope="public_profile,email" data-size="large" onlogin="loginStatus();">
+      </fb:login-button>
+    </div>
+  </div>
 </div>
 
 <div id="result"></div>
 
+<!-- GOOGLE LOGIN -->
 <script>
-  $('#signinButton').click(function() {
-    // signInCallback defined in step 6.
-    auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(signInCallback);
-  });
 
-  function signInCallback(authResult) {
-  if (authResult['code']) {
+  function onSignIn(googleUser) {
+    if (googleUser) {
+      var code = googleUser['code'];
+      var resultContainer = $("#result");
+      $.ajax({
+        type: 'POST',
+        url: '/gconnect?state={{STATE}}',
+        data: code,
+        processData: false,
+        contentType: 'application/octet-stream; charset=utf-8',
+        success: function(result) {
+          if (result) {
+            console.log(result)
+          } else {
+            console.log("Sorry, there was a server side error...")
+          }
+        }
+      });
+    }
+  }
 
-    // Hide the sign-in button now that the user is authorized, for example:
-    $('#signinButton').attr('style', 'display: none');
-
-    // Send the code to the server
-    $.ajax({
-      type: 'POST',
-      url: '/gconnect',
-      contentType: 'application/octet-stream; charset=utf-8',
-      success: function(result) {
-        // Handle or verify the server response if necessary.
-        	if (result) {
-          		$('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...');
-         		setTimeout(function() {
-          			window.location.href = "/restaurant";
-         		}, 4000);
-         	}
-         },
-       processData: false,
-       data: authResult['code']
-    });
-	} else if (authResult['error']) {
-		$("#result").html('There was an error :(');
-  	} else {
-  		$("#result").html('Could not make server side call');
-  	}
-}
+  function onSignInFailure() {
+    console.log('SIGN IN FAILURE!')
+  }
 
 </script>
+
+<div id="fb-root">
+  <script> //src="http://connect.facebook.net/en_US/all.js">
+    window.fbAsyncInit = function() {
+      FB.init({
+          appId      : '1848943128681963',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v2.6'
+      });
+    };
+
+    // creates javascript SDK for Facebook
+    (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1848943128681963";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    /*function loginStatus() {
+      FB.getLoginStatus(function(response) {
+        console.log(response);
+      })
+    }*/
+
+    function loginStatus() {
+      var accessToken = FB.getAuthResponse()['accessToken'];
+      var resultContainer = $("#result");
+      FB.api('/me', function(response) {
+        console.log(response)
+        console.log('Successful login for: ' + response.name);
+      $.ajax({
+        type: 'POST',
+        url: '/fbconnect?state={{STATE}}',
+        data: accessToken,
+        processData: false,
+        contentType: 'application/octet-stream; charset=utf-8',
+        success: function(result) {
+          if (result) {
+            console.log(result);
+            resultContainer.text("Successfull login, redirecting to home page...");
+            setTimeout(function() {
+              window.location.href = "/catalog", 4000
+            })
+          } else {
+              resultContainer.text("Sorry, there was a server side error...");
+          }
+        }
+      });
+    });
+  }
+  </script>
+</div>
 
 {% endblock %}
