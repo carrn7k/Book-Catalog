@@ -1,4 +1,3 @@
-import random
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask import session as login_session
@@ -6,6 +5,8 @@ from flask import session as login_session
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Genre, Author, Books
+
+import db_updates
 
 import random, string
 import json
@@ -28,8 +29,8 @@ session = DBSession()
 app = Flask(__name__)
 
 ## utility functions #######
-def get_genres():
-    return session.query(Genre).all()
+##def get_genres():
+##    return session.query(Genre).all()
 
 def make_response_error(error_msg):
     response = make_response(json.dumps(error_msg), 401)
@@ -53,7 +54,7 @@ def get_user_id(email):
     
 @app.route('/login')
 def login():
-    genres = get_genres()
+    genres = db_updates.get_genres()
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in range(32))
     login_session['state'] = state
@@ -177,13 +178,13 @@ def fbConnect():
 
 @app.route('/catalog/genre/<int:genre_id>/json')
 def showGenresJSON(genre_id):
-    genres = get_genres()
-    genre = session.query(Genre).filter_by(id = genre_id).one()
+    genres = db_updates.get_genres()
+    genre = db_updates.get_one('genre', genre_id)
     return jsonify(genre=genre.serialize)
 
 @app.route('/catalog/<int:book_id>/book/json')
 def showBookJSON(book_id):
-    book = session.query(Books).filter_by(id = book_id).one()
+    book = db_updates.get_one('book', book_id)
     return jsonify(book=book.serialize)
 
 ##@app.route('/catalog/authors/json')
@@ -197,9 +198,10 @@ def showBookJSON(book_id):
 @app.route('/')
 @app.route('/catalog/')
 def showGenres():
-    genres = get_genres()
+    genres = db_updates.get_all('genres')
+    authors = db_updates.get_all('authors')
+    
     feat_books = session.query(Books).order_by(desc(Books.created)).limit(4).all()
-    authors = session.query(Author).all()
 
     a_len = len(authors) - 1
     feat_author = authors[random.randint(0, a_len)]
@@ -215,8 +217,8 @@ def showGenres():
 @app.route('/catalog/genre/<int:genre_id>/')
 def showGenreList(genre_id):
     
-    genres = get_genres()
-    genre = session.query(Genre).filter_by(id = genre_id).one()
+    genres = db_updates.get_all('genres')
+    genre = db_updates.get_one('genre', genre_id)
     genre_books = genre.books
 
     # create a json object of the books for DOM manipulation
@@ -233,21 +235,21 @@ def showGenreList(genre_id):
 @app.route('/catalog/authors/')
 # ADD FUNCTIONALITY TO ADD AN AUTHOR
 def showAuthors():
-    genres = get_genres()
-    authors = session.query(Author).all()
+    genres = db_updates.get_all('genres')
+    authors = db_updates.get_all('authors')
     return render_template('authorlist.html', authors=authors,
                            genres=genres)
 
 @app.route('/catalog/<int:book_id>/book/')
 def showBook(book_id):
-    genres = get_genres()
-    book = session.query(Books).filter_by(id = book_id).one()
+    genres = db_updates.get_all('genres')
+    book = db_updates.get_one('book', book_id)
     return render_template('bookDescription.html', book=book,
                            genres=genres)
 
 @app.route('/catalog/book/new/', methods=['GET', 'POST'])
 def createBook():
-    genres = get_genres()
+    genres = db_updates.get_all('genres')
 
     if request.method == 'POST':
         title = request.form['title']
@@ -256,17 +258,18 @@ def createBook():
         genre = request.form['genres']
 
         current_genre = filter(lambda g: g.genre == genre, genres)
+        current_genre_id = current_genre[0].id
 
         if title and summary and author_input and genre:
             
             new_book = Books(title=request.form['title'],
                              summary=request.form['summary'])
             session.add(new_book)
-            new_book.genre_id = current_genre[0].id
+            new_book.genre_id = current_genre_id
             # if author is already in the DB, fetch the author
-            # and create a relationship with the existin ID. If
+            # and create a relationship with the existing ID. If
             # not, create a new author and use the new ID.
-            try:
+            try: 
                 author = session.query(Author).filter_by(name = author_input).one()
                 new_book.author_id = author.id
                 print('\n')
@@ -293,8 +296,8 @@ def createBook():
 
 @app.route('/catalog/<int:book_id>/book/edit/', methods=['GET', 'POST'])
 def editBook(book_id):
-    genres = get_genres()
-    edit_book = session.query(Books).filter_by(id = book_id).one()
+    genres = db_updates.get_all('genres')
+    edit_book = db_updates.get_one('book', book_id)
     if request.method == 'POST':
         if request.form['newTitle']:
             edit_book.title = request.form['newTitle']
@@ -317,8 +320,8 @@ def editBook(book_id):
 
 @app.route('/catalog/<int:book_id>/book/delete/', methods=['GET', 'POST'])
 def deleteBook(book_id):
-    genres = get_genres()
-    delete_book = session.query(Books).filter_by(id = book_id).one()
+    genres = db_updates.get_all('genres')
+    delete_book = db_updates.get_one('book', book_id)
     if request.method == 'POST':
         session.delete(delete_book)
         session.commit()
