@@ -37,19 +37,6 @@ def make_response_error(error_msg):
     response.headers['content-type'] = 'application/json'
     return response
 
-def create_user(name, email, photo):
-    new_user = User(name=name, email=email, picture=photo)
-    session.add(new_user)
-    session.commit()
-    return new_user.id
-
-def get_user_id(email):
-    try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None
-
 ############################
     
 @app.route('/login')
@@ -96,11 +83,12 @@ def gconnect():
 
     # check if the user exists and if not add
     # them to the database
-    user_id = get_user_id(login_session['email'])
+    user_id = db_updates.get_user_id(login_session['email'])
     if not user_id:
-        user_id = create_user(login_session['username'],
-                              login_session['email'],
-                              login_session['picture'])
+        user_id = db_updates.create_user(login_session['username'],
+                                         login_session['email'],
+                                         login_session['picture'])
+        login_session['user_id'] = user_id
 
     return "SUCCESS!!!"
 
@@ -150,11 +138,11 @@ def fbConnect():
             user_info_response = h.request(url, 'GET')
             user_data = json.loads(user_info_response[1])
 
-            user_id = get_user_id(user_data["email"])
+            user_id = db_updates.get_user_id(user_data["email"])
             if not user_id:
-                user_id = create_user(user_name, user_email, user_photo)
+                user_id = db_updates.create_user(user_name, user_email, user_photo)
                 
-            login_session['id'] = user_id
+            login_session['user_id'] = user_id
             login_session['name'] = user_data["name"]
             login_session['email'] = user_data["email"]
 
@@ -235,6 +223,7 @@ def showGenreList(genre_id):
 @app.route('/catalog/authors/')
 # ADD FUNCTIONALITY TO ADD AN AUTHOR
 def showAuthors():
+    
     genres = db_updates.get_all('genres')
     authors = db_updates.get_all('authors')
     return render_template('authorlist.html', authors=authors,
@@ -242,6 +231,7 @@ def showAuthors():
 
 @app.route('/catalog/<int:book_id>/book/')
 def showBook(book_id):
+    users = db_updates.get_all('users')
     genres = db_updates.get_all('genres')
     book = db_updates.get_one('book', book_id)
     return render_template('bookDescription.html', book=book,
@@ -249,7 +239,18 @@ def showBook(book_id):
 
 @app.route('/catalog/book/new/', methods=['GET', 'POST'])
 def createBook():
+
+    # set user_id to 1 (Me) during production
+    user_id = 1
+    
+    new_book = None
     genres = db_updates.get_all('genres')
+
+    if 'user_id' not in login_session:
+        # add redirect to login page
+        print('\n')
+        print('THE USER IS NOT LOGGED IN')
+        print('\n')
 
     if request.method == 'POST':
         title = request.form['title']
@@ -261,30 +262,15 @@ def createBook():
         current_genre_id = current_genre[0].id
 
         if title and summary and author_input and genre:
-            
-            new_book = Books(title=request.form['title'],
-                             summary=request.form['summary'])
-            session.add(new_book)
-            new_book.genre_id = current_genre_id
-            # if author is already in the DB, fetch the author
-            # and create a relationship with the existing ID. If
-            # not, create a new author and use the new ID.
-            try: 
-                author = session.query(Author).filter_by(name = author_input).one()
-                new_book.author_id = author.id
-                print('\n')
-                print('Author exists and book is linked to him/her')
-                print('\n')
+            try:
+                new_book = db_updates.add_book(title, summary,
+                                               current_genre_id,
+                                               author_input,
+                                               user_id)
             except:
-                new_author = Author(name=author_input)
-                session.add(new_author)
-                session.commit()
-                new_book.author_id = new_author.id
                 print('\n')
-                print('New author has been created')
+                print('THERE WAS AN ERROR WITH CREATE BOOK')
                 print('\n')
-            
-            session.commit()
             return redirect(url_for('showBook', book_id=new_book.id))
         else:
             print('\n')
@@ -298,7 +284,9 @@ def createBook():
 def editBook(book_id):
     genres = db_updates.get_all('genres')
     edit_book = db_updates.get_one('book', book_id)
+
     if request.method == 'POST':
+        
         if request.form['newTitle']:
             edit_book.title = request.form['newTitle']
         if request.form['newSummary']:
@@ -307,11 +295,8 @@ def editBook(book_id):
             try:
                 edit_book.author.name = request.form['newAuthor']
             except:
-                author = Author(name=request.form['newAuthor'])
-                session.add(author)
-                session.commit()
-                edit_book.author_id = author.id
-        session.add(edit_book)
+                author_id = db_updates.add_author(request.form['newAuthor'])
+                edit_book.author_id = author_id
         session.commit()
         return redirect(url_for('showBook', book_id=edit_book.id))
     else:
