@@ -375,14 +375,17 @@ td {
 #current-genre {
 	visibility: hidden;
 	height: 500px;
-	background-color: white;
-	border: 3px solid black;
+	width: 66%;
+	margin: 59px -10px 0 30px;
+	background-color: black;
+	background: linear-gradient(#420200, #ffffff);
 	border-radius: 2px;
 }
 #current-title {
 	padding: 0 0 10px 15px;
 	text-align: center;
 	text-transform: uppercase;
+	color: white;
 	font-weight: bold;
 	font-family: 'Open Sans Condensed', sans-serif;
 }
@@ -432,9 +435,6 @@ td {
 	}
 	#current-genre {
 		visibility: visible;
-		width: 66%;
-		margin-top: 70px;
-    	margin-left: 5px;
 	}
 	.genre-item a {
 		background-color: #ffffff;

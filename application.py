@@ -15,7 +15,7 @@ import os
 import requests
 
 from oauth2client import client
-from apiclient.discovery import build
+from apiclient import discovery
 
 # G_CLIENT_SECRET_FILE = json.loads(open('g_client_secrets.json', 'r').read())
 FB_CLIENT_SECRET_FILE = json.loads(open('fb_client_secrets.json', 'r').read())
@@ -29,19 +29,23 @@ session = DBSession()
 app = Flask(__name__)
 
 ## utility functions #######
-##def get_genres():
-##    return session.query(Genre).all()
 
 def make_response_error(error_msg):
     response = make_response(json.dumps(error_msg), 401)
     response.headers['content-type'] = 'application/json'
     return response
 
+def is_user():
+    if 'name' not in login_session:
+        return None
+    else:
+        return login_session['name']
+
 ############################
     
 @app.route('/login')
 def login():
-    genres = db_updates.get_genres()
+    genres = db_updates.get_all('genres')
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in range(32))
     login_session['state'] = state
@@ -64,8 +68,7 @@ def gconnect():
     # use the flow object and auth_code to obtain
     # credentials
     credentials = flow.step2_exchange(auth_code)
-    
-    http_auth = credentials.authorize(httplib2.Http())
+    # http_auth = credentials.authorize(httplib2.Http())
 
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
@@ -141,7 +144,8 @@ def fbConnect():
             user_id = db_updates.get_user_id(user_data["email"])
             if not user_id:
                 user_id = db_updates.create_user(user_name, user_email, user_photo)
-                
+
+            login_session['provider'] = 'facebook'
             login_session['user_id'] = user_id
             login_session['name'] = user_data["name"]
             login_session['email'] = user_data["email"]
@@ -180,15 +184,18 @@ def showBookJSON(book_id):
 ##def showAuthorsJSON():
 ##    authors = session.query(Author).all()
 ##    return jsonify(authors=authors.serialize)
+            
 
 #############################
 
 @app.route('/')
 @app.route('/catalog/')
 def showGenres():
+    
+    user = is_user()
+        
     genres = db_updates.get_all('genres')
     authors = db_updates.get_all('authors')
-    
     feat_books = session.query(Books).order_by(desc(Books.created)).limit(4).all()
 
     a_len = len(authors) - 1
@@ -200,10 +207,13 @@ def showGenres():
 ##    genre_table = [genres[i:i+3] for i in range(0, len(genres), 3)]
 ##    return render_template('catalog.html', genre_table=genre_table)
     return render_template('catalog.html', genres=genres,
-                           books=feat_books, author=feat_author)
+                           books=feat_books, author=feat_author,
+                           user=user)
     
 @app.route('/catalog/genre/<int:genre_id>/')
 def showGenreList(genre_id):
+
+    user = is_user()
     
     genres = db_updates.get_all('genres')
     genre = db_updates.get_one('genre', genre_id)
@@ -218,27 +228,34 @@ def showGenreList(genre_id):
     
     #books = session.query(Books).filter_by(genre_id = genre_id).all()
     return render_template('genreList.html', genre=genre, genres=genres,
-                           books=genre_books, j_books=j_books)
+                           books=genre_books, j_books=j_books, user=user)
 
 @app.route('/catalog/authors/')
 # ADD FUNCTIONALITY TO ADD AN AUTHOR
 def showAuthors():
     
+    user = is_user()
+    
     genres = db_updates.get_all('genres')
     authors = db_updates.get_all('authors')
     return render_template('authorlist.html', authors=authors,
-                           genres=genres)
+                           genres=genres, user=user)
 
 @app.route('/catalog/<int:book_id>/book/')
 def showBook(book_id):
+
+    user = is_user()
+        
     users = db_updates.get_all('users')
     genres = db_updates.get_all('genres')
     book = db_updates.get_one('book', book_id)
     return render_template('bookDescription.html', book=book,
-                           genres=genres)
+                           genres=genres, user=user)
 
 @app.route('/catalog/book/new/', methods=['GET', 'POST'])
 def createBook():
+
+    user = is_user()
 
     # set user_id to 1 (Me) during production
     user_id = 1
@@ -276,12 +293,15 @@ def createBook():
             print('\n')
             print('CREATE MESSAGE FLASHING: PLEASE INPUT ALL FIELDS')
             print('\n')
-            return render_template('addBook.html', genres=genres)
+            return render_template('addBook.html', genres=genres, user=user)
     else:
-        return render_template('addBook.html', genres=genres)
+        return render_template('addBook.html', genres=genres, user=user)
 
 @app.route('/catalog/<int:book_id>/book/edit/', methods=['GET', 'POST'])
 def editBook(book_id):
+
+    user = is_user()
+        
     genres = db_updates.get_all('genres')
     edit_book = db_updates.get_one('book', book_id)
 
@@ -301,10 +321,13 @@ def editBook(book_id):
         return redirect(url_for('showBook', book_id=edit_book.id))
     else:
         return render_template('edit.html', book=edit_book,
-                               genres=genres)
+                               genres=genres, user=user)
 
 @app.route('/catalog/<int:book_id>/book/delete/', methods=['GET', 'POST'])
 def deleteBook(book_id):
+
+    user = is_user()
+        
     genres = db_updates.get_all('genres')
     delete_book = db_updates.get_one('book', book_id)
     if request.method == 'POST':
@@ -313,7 +336,7 @@ def deleteBook(book_id):
         return redirect(url_for('showGenres'))
     else:
         return render_template('delete.html', book=delete_book,
-                               genres=genres)
+                               genres=genres, user=user)
 
 if __name__ == '__main__':
     app.debug = True

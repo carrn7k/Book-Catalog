@@ -44,15 +44,21 @@
 				<li class="text-uppercase nav-item">
 					<a href="{{ url_for('showAuthors') }}">Authors</a></li>
 				<li class="text-uppercase nav-item">Content</li>
+				{% if user %}
 				<li class="text-uppercase nav-item">
 					<a href="{{ url_for('createBook') }}" id="new-book-link">Create New Book</a>
 				</li>
+				{% endif %}
 			</ul>
 		</div>
 	</div>
 	<i id="genre-button" class="fa fa-bars" aria-hidden="true"></i>
 	<!--<div id="genre-button">Genres</div>-->
+	{% if not user %}
 	<div><a href="{{ url_for('login') }}" id="login-button">Login</a></div>
+	{% else %}
+	<div><span id="login-button">Hi {{ user }}<a href=# style="color: white">&nbsp;&nbsp;&nbsp;logout</a></span></div>
+	{% endif %}
 	<div class="container">
 		<div class="row" id="banner">
 			<div class="col-md-8">
