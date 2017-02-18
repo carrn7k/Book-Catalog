@@ -30,6 +30,13 @@ td {
 	background-color: #420200;
 	box-shadow: black 1px 5px 12px;
 }
+#f-messages {
+	position: absolute;
+	top: 100px;
+	color: blue;
+}
+
+
 
 /* Mobile */
 
@@ -253,7 +260,15 @@ td {
 	border: 5px solid grey;
 	background-color: white;
 }
-#g-sign-in {
+#button-container {
+	display: block;
+}
+.button-wrap {
+	width: 100%;
+	text-align: center;
+}
+
+/*#g-sign-in {
 	position: absolute;
 	margin-left: 25px;
 	margin-top: 50px;
@@ -262,7 +277,7 @@ td {
 	position: absolute;
 	right: 125px;
 	margin-top: 50px;
-}
+}*/
 
 /***** ADD BOOK PAGE ******/
 #add-section {
@@ -374,7 +389,7 @@ td {
 
 #current-genre {
 	visibility: hidden;
-	height: 500px;
+	height: 520px;
 	width: 66%;
 	margin: 59px -10px 0 30px;
 	background-color: black;
@@ -405,6 +420,23 @@ td {
 	margin-left: 20px;
 	padding: 5px 20px 5px 20px;
 	overflow: scroll;
+}
+#edit-delete {
+	display: flex;
+}
+#edit-delete div:first-child {
+	margin-left: 27px;
+}
+#edit-delete div {
+	padding: 3px 5px 3px 5px;
+}
+#edit-delete div:hover {
+	color: grey;
+}
+#edit-delete div a {
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 14px;
 }
 
 

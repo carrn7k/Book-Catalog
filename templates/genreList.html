@@ -55,6 +55,12 @@
 		<div class="row">
 			<p id="current-summary"></p>
 		</div>
+		{% if user %}
+		<div class="row" id="edit-delete">
+			<div><a href="" id="edit-book">Edit</a></div>
+			<div><a href="" id="delete-book">Delete</a></div>
+		</div>
+		{% endif %}
 	</div>
 
 </div>

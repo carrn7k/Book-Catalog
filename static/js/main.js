@@ -37,6 +37,7 @@ $(document).ready(function() {
 
 
 // Highlighted Book Controller
+
 $(function() {
 var model = { 
 	currentBook: null,
@@ -45,8 +46,10 @@ var model = {
 
 var controller = {
 	init: function() {
-		model.currentBook = model.bookData[0];
-		bookView.init();
+		if (model.bookData) {
+			model.currentBook = model.bookData[0];
+			bookView.init();
+		}
 	},
 	getBooks: function() {
 		return model.bookData
@@ -69,6 +72,8 @@ var bookView = {
 		this.cTitle = $("#current-title");
 		this.cAuthor = $("#current-author");
 		this.cSummary = $("#current-summary");
+		this.cEdit = $("#edit-book");
+		this.cDelete = $("#delete-book");
 
 		this.render();
 	},
@@ -78,6 +83,16 @@ var bookView = {
 		this.cTitle.text(currentBook.title);
 		this.cAuthor.text(currentBook.author);
 		this.cSummary.text(currentBook.summary);
+
+		var editUrl = '/catalog/' + currentBook.book_id + '/book/edit/';
+		var deleteUrl = '/catalog/' + currentBook.book_id + '/book/delete/';
+
+		console.log(currentBook.book_id);
+		console.log(this.cEdit);
+		console.log(editUrl);
+
+		this.cEdit.attr('href', editUrl);
+		this.cDelete.attr('href', deleteUrl);
 
 		// set click events for the booklist
 		self = this;
@@ -104,3 +119,4 @@ var bookView = {
 
 controller.init();
 })
+

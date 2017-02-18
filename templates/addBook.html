@@ -5,6 +5,9 @@
 
 <div class="row" id="add-container">
 	<h4>Add a New Book</h4>
+	{% if error %}
+	<div class="error"><p>{{ error }}</p></div>
+	{% endif %}
 	<form method="post">
 		<label for="add-title"><span>Title</span></label>
 		<input type="text" class="add-input" name="title" id="add-title">

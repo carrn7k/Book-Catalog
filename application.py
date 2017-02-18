@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
+from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response, flash
 from flask import session as login_session
 
 from sqlalchemy import create_engine, desc
@@ -14,10 +14,11 @@ import httplib2
 import os
 import requests
 
-from oauth2client import client
 from apiclient import discovery
+from oauth2client import client
+from oauth2client.client import FlowExchangeError
 
-# G_CLIENT_SECRET_FILE = json.loads(open('g_client_secrets.json', 'r').read())
+G_CLIENT_ID = json.loads(open('g_client_secrets.json', 'r').read())['web']['client_id']
 FB_CLIENT_SECRET_FILE = json.loads(open('fb_client_secrets.json', 'r').read())
 
 engine = create_engine('sqlite:///bookcatalog.db')
@@ -30,8 +31,8 @@ app = Flask(__name__)
 
 ## utility functions #######
 
-def make_response_error(error_msg):
-    response = make_response(json.dumps(error_msg), 401)
+def make_response_error(error_msg, error_code):
+    response = make_response(json.dumps(error_msg), error_code)
     response.headers['content-type'] = 'application/json'
     return response
 
@@ -51,38 +52,108 @@ def login():
     login_session['state'] = state
     return render_template('login.html', STATE=state, genres=genres)
 
+@app.route('/logout')
+def logout():
+
+    current_provider = login_session['provider']
+    if not current_provider:
+        flash("Sorry, there was an error logging out")
+        print('\n')
+        print('USER IS NOT LOGGED OR NOT IN THE SESSION')
+        print('\n')
+        return redirect(url_for('showGenres'))
+    elif current_provider == 'Google':
+        try:
+            g_disconnect()
+            flash("You're now logged out")
+            return redirect(url_for('showGenres'))
+        except:
+            make_response_error('Logout Failed', 401)
+    elif current_provider == 'Facebook':
+        try:
+            fb_disconnect()
+            flash("You're now logged out")
+            return redirect(url_for('showGenres'))
+        except:
+            make_response_error('Logout Failed', 401)
+
+# logout functions
+def g_disconnect():
+    if login_session['access_token'] is None:
+        return make_response_error('Current User is Not Logged In', 401)
+    else:
+        access_token = login_session['access_token']
+        login_session.clear()
+        url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+        h = httplib2.Http()
+        result = h.request(url, 'GET')
+        if result[0]['status'] != '200':
+            return make_response_error('Failed to Revoke Token', 400)
+
+def fb_disconnect():
+    facebook_id = login_session['fb_id']
+    # The access token must me included to successfully logout
+    access_token = login_session['access_token']
+    login_session.clear()
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    h = httplib2.Http()
+    result = h.request(url, 'DELETE')[1]
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     
     if not request.args.get('state') == login_session['state']:
-        return make_response_error('Invalid state parameter.')
+        return make_response_error('Invalid state parameter.', 401)
 
     auth_code = request.data
+    
+    # initiate flow and exchange auth_code
+    # for access token
+    try: 
+        flow = client.flow_from_clientsecrets(
+            'g_client_secrets.json',
+            scope='openid email',
+            redirect_uri='http://localhost:5000')
+        credentials = flow.step2_exchange(auth_code)
 
-    # initiate flow using client secrets file
-    flow = client.flow_from_clientsecrets(
-        'g_client_secrets.json',
-        scope='openid email',
-        redirect_uri='http://localhost:5000')
-
-    # use the flow object and auth_code to obtain
-    # credentials
-    credentials = flow.step2_exchange(auth_code)
-    # http_auth = credentials.authorize(httplib2.Http())
-
+    except FlowExchangeError:
+        return make_response_error('Failed to Obtain Authorization Code.', 401)
+    
+    # request user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     answer = requests.get(userinfo_url, params=params)
-
-    login_session['access_token'] = credentials.access_token
-
     data = answer.json()
 
+    # security and error checks
+    if data.get('error') is not None:
+        return make_response_error(data['error']['message'], 401)
+
+    if credentials.id_token['sub'] != data['id']:
+        return make_response_error("Token and User ID Don't Match", 401)
+
+    if credentials.client_id != G_CLIENT_ID:
+        return make_response_error("Token ID and App ID don't match", 401)
+
+    # update the login_session
     login_session['provider'] = 'Google'
-    login_session['username'] = data['name']
+    login_session['access_token'] = credentials.access_token
+    login_session['g_id'] = data['id']
+    login_session['name'] = data['name']
     login_session['email'] = data['email']
     login_session['google_id'] = data['id']
     login_session['picture'] = data['picture']
+
+    # check if user is already logged in
+    if (login_session.get('access_token') != None and
+        login_session.get('g_id') == credentials.id_token['sub']):
+        
+        response = make_response(json.dumps('Current User is Already Logged In.'),
+                                 200)
+        response.headers['Content-Type'] = 'application/json'
+        print(response)
+        flash("It looks like you're already logged in" + login_session['name'])
+        return redirect(url_for('showGenres'))
 
     # check if the user exists and if not add
     # them to the database
@@ -93,7 +164,7 @@ def gconnect():
                                          login_session['picture'])
         login_session['user_id'] = user_id
 
-    return "SUCCESS!!!"
+    return "SUCCESS!!!"    
 
 @app.route('/fbconnect', methods=['POST'])
 def fbConnect():
@@ -111,8 +182,12 @@ def fbConnect():
     url = "https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (
         app_id, app_secret)
     h = httplib2.Http()
-    user_acess_data = h.request(url, 'GET')
-    app_access_token = user_acess_data[1].split('=')[1]
+    app_access_data = h.request(url, 'GET')
+    app_access_token = app_access_data[1].split('=')[1]
+
+    # check that the response returned an access token
+    if app_access_data[0]['status'] != '200':
+        return make_response_error('Could Not Obtain Access Token', 401)
 
     # use client credentials (app_token) and the access
     # token from the AJAX request to verify the user
@@ -122,49 +197,56 @@ def fbConnect():
     inspection_data = h.request(url, 'GET')
 
     # if the user is validated, proceed to token exchange
-    if json.loads(inspection_data[1])['data']['is_valid']:
-        
+    if not json.loads(inspection_data[1])['data']['is_valid']:
+        return make_response_error('User Could Not Be Validated', 401)
+    else:
         url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
             app_id, app_secret, access_token)
         h = httplib2.Http()
-        result = h.request(url, 'GET')[1]
+        result = h.request(url, 'GET')
 
         # if the exchange was successful, use the access
-        # token to make api calls on behalf of the user
-        if result:
-
-            token = result.split('&')[0]
-            login_session['token'] = token
+        # token to make api calls on behalf of the user   
+        if result[0]['status'] != '200':
+            return make_response_error('Token Exchange Failed', 401)
+        else:
+            
+            fb_token = result[1].split('&')[0]
+            login_session['access_token'] = fb_token
 
             # user info api call
-            url = "https://graph.facebook.com/v2.4/me?%s&fields=name,id,email" % token
+            url = "https://graph.facebook.com/v2.4/me?%s&fields=name,id,email" % fb_token
             user_info_response = h.request(url, 'GET')
             user_data = json.loads(user_info_response[1])
 
+            # user photo api call
+            url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % fb_token
+            h = httplib2.Http()
+            photo = h.request(url, 'GET')
+            user_photo = json.loads(photo[1])["data"]["url"]
+
+            # if the user does not exist in the DB add them
             user_id = db_updates.get_user_id(user_data["email"])
             if not user_id:
                 user_id = db_updates.create_user(user_name, user_email, user_photo)
 
-            login_session['provider'] = 'facebook'
-            login_session['user_id'] = user_id
+            login_session['provider'] = 'Facebook'
+            login_session['fb_id'] = user_id
             login_session['name'] = user_data["name"]
             login_session['email'] = user_data["email"]
-
-            # user photo api call
-            url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
-            h = httplib2.Http()
-            photo = h.request(url, 'GET')
-
-            user_photo = json.loads(photo[1])["data"]["url"]
             login_session['photo'] = user_photo
-            
-        else:
-            make_response_error("User Authorization Error")
 
-        return str(user_id)
-        
-    else:
-        make_response_error("Invalid User Token")
+            # check if user is already logged in
+            if (login_session.get('access_token') != None and
+                login_session.get('f_id') == user_id):
+                response = make_response(json.dumps('Current User is Already Logged in.'),
+                                 200)
+                response.headers['Content-Type'] = 'application/json'
+                print(response)
+                flash("It looks like you're already logged in" + login_session['name'])
+            else:
+                return str(user_id)
+
 
 # JSON endpoints ##########
 
@@ -191,7 +273,9 @@ def showBookJSON(book_id):
 @app.route('/')
 @app.route('/catalog/')
 def showGenres():
-    
+
+    # login_session.clear()
+
     user = is_user()
         
     genres = db_updates.get_all('genres')
@@ -263,7 +347,7 @@ def createBook():
     new_book = None
     genres = db_updates.get_all('genres')
 
-    if 'user_id' not in login_session:
+    if 'email' not in login_session:
         # add redirect to login page
         print('\n')
         print('THE USER IS NOT LOGGED IN')
@@ -279,21 +363,30 @@ def createBook():
         current_genre_id = current_genre[0].id
 
         if title and summary and author_input and genre:
+            
+            # check if the book already exists in the 
             try:
-                new_book = db_updates.add_book(title, summary,
-                                               current_genre_id,
-                                               author_input,
-                                               user_id)
+                added_book = session.query(Books).filter_by(title = title).one()
+                error = "Sorry, " + added_book.title + " has already been added!"
+                return render_template('addBook.html', genres=genres, user=user,
+                                   error=error)
             except:
-                print('\n')
-                print('THERE WAS AN ERROR WITH CREATE BOOK')
-                print('\n')
-            return redirect(url_for('showBook', book_id=new_book.id))
+                try:
+                    new_book = db_updates.add_book(title, summary,
+                                                   current_genre_id,
+                                                   author_input,
+                                                   user_id)
+                except:
+                    flash('Sorry, something went wrong...')
+                    redirect(url_for('createBook'))
+
+                # if successfull, redirect to the book description
+                flash(new_book.title + 'Successfully Added!')
+                return redirect(url_for('showBook', book_id=new_book.id))
         else:
-            print('\n')
-            print('CREATE MESSAGE FLASHING: PLEASE INPUT ALL FIELDS')
-            print('\n')
-            return render_template('addBook.html', genres=genres, user=user)
+            error = "Please enter all fields"
+            return render_template('addBook.html', genres=genres, user=user,
+                                   error=error)
     else:
         return render_template('addBook.html', genres=genres, user=user)
 

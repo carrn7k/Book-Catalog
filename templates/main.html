@@ -57,7 +57,7 @@
 	{% if not user %}
 	<div><a href="{{ url_for('login') }}" id="login-button">Login</a></div>
 	{% else %}
-	<div><span id="login-button">Hi {{ user }}<a href=# style="color: white">&nbsp;&nbsp;&nbsp;logout</a></span></div>
+	<div><span id="login-button">Hi {{ user }}<a href="{{ url_for('logout') }}" style="color: white">&nbsp;&nbsp;&nbsp;logout</a></span></div>
 	{% endif %}
 	<div class="container">
 		<div class="row" id="banner">
@@ -78,6 +78,17 @@
 				</div>
 				<!-- ADD AJAX -->
 			</div>
+		</div>
+		<div id="f-messages">
+		{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<ul>
+						{% for message in messages %}
+							 <li> <strong> {{ message }} </strong> </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			{% endwith %}
 		</div>
 
 		{% block content %}

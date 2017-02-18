@@ -15,5 +15,8 @@
 	</div>
 	<input type="submit" value="edit">
 </form>
+<div class="cancel">
+	<button><a href="{{ url_for('showGenreList', genre_id = book.genre.id) }}">Cancel</a></button>
+</div>
 
 {% endblock %}
