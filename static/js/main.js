@@ -135,7 +135,7 @@ var bookView = {
 
 
 
-		// if user is logged in and the creator of the current book
+		// If user is logged in and the creator of the current book
 		// display edit and delete options
 
 		if (currentBook.user_id == currentBook.c_user_id) {
@@ -167,10 +167,6 @@ var bookView = {
 
 			$( this ).on("click", function() {
 
-				/*var top = $( this ).position().top + 16;
-				var left = $( this ).position().left - 150;
-
-				self.modal.css({top: top, left: left});*/
 				self.modal.hide();
 
 				if (bookID) {

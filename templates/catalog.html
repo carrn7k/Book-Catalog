@@ -3,13 +3,13 @@
 {% block content %}
 
 	<div class="row" id="mainImgWrap">
-		<div class="col-sm-12">
+		<div class="col-xs-12">
 			<img src="/static/images/book_test.jpg" alt="Main Image" id="main-image">
 		</div>
 	</div>
 
 	<div class="row srchWrap">
-		<div class="col-sm-12">
+		<div class="col-xs-12">
 			<h1 class="search-title" id="top">Search</h1>
 			<h3 class="search-title" id="middle">for</h3>
 			<h1 class="search-title" id="bottom">Books</h1>
@@ -48,7 +48,7 @@
 
 		<div class="m-container" id="feat-bks-cntr">
 		<div class="row" id="feat-title-wrap">
-			<div class="col-sm-12">
+			<div class="col-xs-12">
 				<h2 id="feat-bks-title">Featured Books</h2>
 			</div>
 		</div>
@@ -61,7 +61,6 @@
 				</div>
 				<div class="col-xs-4" id="feat-bk-link">
 					<a href="{{ url_for('showBook', book_id = book.id) }}">More info -></a>
-					<!--<img src="http://placehold.it/155x155" class="text-center" id="pop-image">-->
 				</div>
 			</div>
 		{% endfor %}
@@ -75,10 +74,10 @@
 			</div>
 
 			<div class="row" id="feat-auth-wrap">
-				<div class="col-sm-12">
+				<div class="col-xs-12">
 					<h4 id="feat-auth-name">{{ author.name }}</h4>
 				</div>
-				<div class="col-sm-12">
+				<div class="col-xs-12">
 					<ul id="feat-auth-ls">
 					{% for book in auth_books %}
 						<li><a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a></li>
@@ -88,8 +87,6 @@
 			</div>
 
 		</div>
-		
-		<!--<div class="col-sm-12" id="scroll-test"></div>-->
 
 	</main>
 

@@ -520,7 +520,7 @@ footer div {
 #inner-authors div a {
 	font-family: 'Roboto', sans-serif;
 }
-#author-li: hover {
+#author-li:hover {
 	color: grey;
 }
 
@@ -631,7 +631,6 @@ footer div {
 	font-family: 'Open Sans Condensed', sans-serif;
 	border-left: 1px solid #420200;
 	border-right: 1px solid #420200;
-	/*box-shadow: #000000 0px 19px 6px 12px;*/
     background-color: white;
     padding: 0 0 3px 7px;
 }
@@ -801,7 +800,6 @@ footer div {
 	}
 	#genres-container {
 		box-shadow: black 0px 5px 4px 2px;
-		/*background-color: inherit;*/
 	}
 	#genres-inner {
 		display: block;
@@ -1031,24 +1029,3 @@ footer div {
 	}
 
 }
-
-/*
-@media screen and (min-width: 734px) {
-	#main-container {
-		margin-left: 50px;
-		margin-right: 50px;
-	}
-}*/
-/*@media screen and (min-width: 640px) {
-	.navWrap {
-		display: none;
-	}
-	.container {
-		min-width: 100%;
-		background-image: url("images/book_test.jpg");
-		background-repeat: no-repeat;
-	}
-	#mainImgWrap {
-		display: none;
-	}
-}*/

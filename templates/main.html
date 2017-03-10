@@ -13,9 +13,9 @@
 		<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Anonymous+Pro" rel="stylesheet">
-		<!--FONT AWESOME-->
+		<!---->
+
 		<link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">
-		<!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">-->
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 		<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
@@ -50,7 +50,6 @@
 		</div>
 	</div>
 	<i id="genre-button" class="fa fa-bars" aria-hidden="true"></i>
-	<!--<div id="genre-button">Genres</div>-->
 	{% if not user %}
 	<div id="login-logout">
 		<a href="{{ url_for('login') }}">Login</a>
@@ -63,22 +62,8 @@
 	{% endif %}
 	<div class="container" id="main-container">
 		<div class="row" id="banner">
-			<div class="col-md-8">
+			<div class="col-sm-8">
 				<h1 id="title"><a href="/catalog">Catalog</a></h1>
-			</div>
-			<div class="col-md-4">
-				<div id="signInButton">
-					<!--<span class="g-signin"
-					      data-scope="openid email"
-					      data-clientid="ID GOES HERE"
-					      data-redirecturi="postmessage"
-					      data-acesstype="offline"
-					      data-cookiepolicy="single_host_origin"
-					      data-callback="signInCallback"
-					      data-approvalprompt="force">
-					</span>-->
-				</div>
-				<!-- ADD AJAX -->
 			</div>
 		</div>
 		<div id="f-messages">
