@@ -2,10 +2,18 @@
 
 {% block content %}
 
-<h1>Authors</h1>
-
-{% for author in authors %}
-<div>{{ author.name }}</div>
-{% endfor %}
+<div class="container page-style">
+	<div class="row" id="inner-authors">
+		<h1>Authors</h1>
+		{% for author in authors %}
+		<div><a href="#" id="author-li">{{ author.name }}</a></div>
+		{% endfor %}
+		<div class="home-btn">
+			<a href="/catalog">Home</a>
+		</div>
+	</div>
+</div>
 
 {% endblock %}
+
+

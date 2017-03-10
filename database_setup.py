@@ -46,10 +46,11 @@ class Author(Base):
 
 class Books(Base):
     __tablename__ = 'books'
-
+    
     id = Column(Integer, primary_key=True)
     title = Column(String(250), nullable=False)
     summary = Column(String(300), nullable=False)
+    photo = Column(String(250), nullable=True)
     created = Column(DateTime)
 
     author_id = Column(Integer, ForeignKey('author.id'))
@@ -68,6 +69,7 @@ class Books(Base):
            'id'           : self.id,
            'title'        : self.title,
            'summary'      : self.summary,
+           'photo'        : self.photo,
            'author'       : self.author.name,
            'genre'        : self.genre.genre,
        }

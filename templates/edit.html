@@ -2,21 +2,36 @@
 
 {% block content %}
 
-<h4>Edit {{ book.title }}</h4>
-<form method="post" action="#">
-	<div>
-		<input type="text" name="newTitle" placeholder="{{ book.title }}">
+<div class="container page-style">
+	
+	<div class="error">{{ error }}</div>
+	<div class="container" id="edit-wrap">
+		<div id="edit-container">
+			<h4 id="edit-title">Edit -- {{ book.title }}</h4>
+			<form method="post" action="#" id="edit-form">
+				<div>
+					<label for="newTitle">Title</label>
+					<input class="input-text" type="text" name="newTitle" placeholder="{{ book.title }}" id="new-title">
+				</div>
+				<div>
+					<label for="newSummary">Summary</label>
+					<textarea name="newSummary">{{ book.summary }}</textarea>
+				</div>
+				<div>
+					<label for="newAuthor">Author</label>
+					<input class="input-text" type="text" name="newAuthor" placeholder="{{ book.author.name }}" id="new-author">
+				</div>
+				<div class="row">
+					<div>
+						<input type="submit" value="Edit">
+					</div>
+					<div class="col-sm-6" id="cancel-wrp">
+						<button><a href="{{ url_for('showGenreList', genre_id = book.genre.id) }}">Cancel</a></button>
+					</div>
+				</div>
+			</form>
+		</div>
 	</div>
-	<div>
-		<textarea name="newSummary">{{ book.summary }}</textarea>
-	</div>
-	<div>
-		<input type="text" name="newAuthor" placeholder="{{ book.author.name }}">
-	</div>
-	<input type="submit" value="edit">
-</form>
-<div class="cancel">
-	<button><a href="{{ url_for('showGenreList', genre_id = book.genre.id) }}">Cancel</a></button>
 </div>
 
 {% endblock %}

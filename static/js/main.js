@@ -4,13 +4,34 @@ $(document).ready(function() {
 	$(document).on("scroll", function() {
 
 		var searchWrap = $(".srchWrap");
+		var loginLogout = $("#login-logout");
 
-		if ($(document).scrollTop() > 200) {
-			searchWrap.addClass("srchWrapFixed");
+		if ($(document).scrollTop() > 200 && 
+			$(document).width() < 600 ) {
+				searchWrap.addClass("srchWrapFixed");
+				console.log($(document).width());
+				loginLogout.hide()
 		} else {
 			searchWrap.removeClass("srchWrapFixed");
+			loginLogout.show();
 		}
 	});
+})
+
+// jQuery autocomplete search bar
+$(document).ready(function() {
+	var bookList = $("#search-list").data("books");
+	var searchBar = $("#autocomplete");
+
+	searchBar.autocomplete({
+  		source: bookList,
+  		select: function(event, ui) {
+  			console.log(ui.item.value);
+  			event.preventDefault();
+  			window.location.href = "/catalog/" + ui.item.value + "/book/"
+  		}
+	});
+
 })
 
 // nav functions
@@ -37,7 +58,6 @@ $(document).ready(function() {
 
 
 // Highlighted Book Controller
-
 $(function() {
 var model = { 
 	currentBook: null,
@@ -68,31 +88,74 @@ var bookView = {
 		// book list
 		this.bookList = $(".genre-item");
 
-		// current book view
+		// current book view (large screen)
 		this.cTitle = $("#current-title");
 		this.cAuthor = $("#current-author");
 		this.cSummary = $("#current-summary");
+		this.cPhoto = $("#current-photo");
+		this.editDeleteWrap = $("#edit-delete");
 		this.cEdit = $("#edit-book");
 		this.cDelete = $("#delete-book");
 
-		this.render();
+
+		// current book view (modal)
+		this.modal = $("#modal");
+		this.modalClose = $("#modal-close");
+		this.modPhoto = $("#modal-img");
+		this.modTitle = $("#modal-title");
+		this.modAuthor = $("#modal-author");
+		this.modSummary = $("#modal-summary");
+		this.editDeleteModal = $("#edit-dlt-mdl");
+		this.modEdit = $("#edit-mdl");
+		this.modDelete = $("#delete-mdl");
+
+		this.render(false);
 	},
-	render: function() {
+	render: function(modalStatus) {
+
 		var currentBook = controller.getCurrentBook();
-		
+		var width = $(document).width();
+
+
+		// Current Genre (Large Screens)
 		this.cTitle.text(currentBook.title);
-		this.cAuthor.text(currentBook.author);
+		this.cAuthor.text("Written by -- " + currentBook.author);
 		this.cSummary.text(currentBook.summary);
+		this.cPhoto.attr("src", currentBook.book_photo);
 
-		var editUrl = '/catalog/' + currentBook.book_id + '/book/edit/';
-		var deleteUrl = '/catalog/' + currentBook.book_id + '/book/delete/';
+		// Current Genre (Small Screens)
+		this.modPhoto.attr("src", currentBook.book_photo);
+		this.modTitle.text(currentBook.title);
+		this.modAuthor.text("Written by -- " + currentBook.author);
+		this.modSummary.text(currentBook.summary);
 
-		console.log(currentBook.book_id);
-		console.log(this.cEdit);
-		console.log(editUrl);
+		// Don't render the modal on page load
+		if (modalStatus == true)
+			this.modal.show();
 
-		this.cEdit.attr('href', editUrl);
-		this.cDelete.attr('href', deleteUrl);
+
+
+		// if user is logged in and the creator of the current book
+		// display edit and delete options
+
+		if (currentBook.user_id == currentBook.c_user_id) {
+
+			var editUrl = '/catalog/' + currentBook.book_id + '/book/edit/';
+			var deleteUrl = '/catalog/' + currentBook.book_id + '/book/delete/';
+
+			this.cEdit.attr('href', editUrl);
+			this.cDelete.attr('href', deleteUrl);
+
+			this.modEdit.attr('href', editUrl);
+			this.modDelete.attr('href', deleteUrl);
+
+			this.editDeleteModal.show();
+			this.editDeleteWrap.show();
+		}
+		else {
+			this.editDeleteModal.hide();
+			this.editDeleteWrap.hide();
+		}
 
 		// set click events for the booklist
 		self = this;
@@ -103,16 +166,28 @@ var bookView = {
 			var bookID = $( this ).data("id");
 
 			$( this ).on("click", function() {
+
+				/*var top = $( this ).position().top + 16;
+				var left = $( this ).position().left - 150;
+
+				self.modal.css({top: top, left: left});*/
+				self.modal.hide();
+
 				if (bookID) {
 					currentBook = books.filter(function(book) {
 						return book.book_id == bookID
 					});
 					if (currentBook) {
 						controller.setCurrentBook(currentBook[0]);
-						self.render();	
+						self.render(true);	
 					}
 				}
 			})
+		})
+
+		// Close Modal Event
+		this.modalClose.on("click", function() {
+			self.modal.hide();
 		})
 	}
 }

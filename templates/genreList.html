@@ -5,41 +5,34 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="container" id="genre-container" data-books="{{ j_books }}">
 
 	<div class="container" id="genre-li-container">
-		<div class="row">
-			<h4>{{ genre.genre }}</h4>
-		</div>
 		<div class="row" id="genres-container">
-			{% for book in books %}
-			<div class="col-sm-6 genre-item" data-id="{{ book.id }}">
-				<!--<a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a>-->
-				<a href="#">{{ book.title }}</a>
+			<h4>{{ genre.genre }}</h4>
+
+			<div id="genres-inner">
+				
+				{% if books %}
+
+				{% for book in books %}
+				<div class="col-sm-6 genre-item" data-id="{{ book.id }}">
+					<!--<a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a>-->
+					<a href="#">{{ book.title }}</a>
+				</div>
+				{% endfor %}
+
+				{% else %}
+				<div class="col-sm-6 genre-item">No books for this genre yet. Log in to add some!</div>
+				{% endif %}
+
 			</div>
-			{% endfor %}
-			<!--PLACEHOLDERS-->
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
-			<div class="col-xs-6 genre-item">
-				<a href="#">The Big Bang</a>
-			</div>
+
+		
+		<!-- else
+		<div id="empty-msg">No books for this genre yet, log in to add some!</div>
+			endif -->
 		</div>
 	</div>
 
@@ -47,12 +40,12 @@
 		<div class="row">
 			<h3 id="current-title"></h3>
 		</div>
-		<div class="row">
-			<img src="http://placehold.it/350x150">
+		<div class="row" id="img-wrap">
+			<img id="current-photo" alt="Image of Book" />
 		</div>
 		<div class="row">
 			<p id="current-author"></p>
-		<div class="row">
+		<div class="row" id="summary-container">
 			<p id="current-summary"></p>
 		</div>
 		{% if user %}
@@ -62,7 +55,22 @@
 		</div>
 		{% endif %}
 	</div>
+</div>
 
+<div id="modal">
+	<i class="fa fa-window-close" aria-hidden="true" id="modal-close"></i>
+	<h3 id="modal-title"></h3>
+	<div class="row flex" id="modal-info">
+		<img id="modal-img">
+		<div id="modal-summary"></div>
+	</div>
+	<div id="modal-author"></div>
+	<div class="row" id="edit-dlt-mdl">
+		<div><a href="" id="edit-mdl">Edit</a></div>
+		<div><a href="" id="delete-mdl">Delete</a></div>
+	</div>
 </div>
 
 {% endblock %}
+
+</div>

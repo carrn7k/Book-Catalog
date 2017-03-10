@@ -7,47 +7,98 @@
 			<img src="/static/images/book_test.jpg" alt="Main Image" id="main-image">
 		</div>
 	</div>
+
 	<div class="row srchWrap">
 		<div class="col-sm-12">
-			<form id="search-bar">
-				<input type="text">
-			</form>
+			<h1 class="search-title" id="top">Search</h1>
+			<h3 class="search-title" id="middle">for</h3>
+			<h1 class="search-title" id="bottom">Books</h1>
+			<div id="search-list" data-books="{{j_books}}">
+				<form id="search-bar" method="post">
+					<input id="autocomplete" name="b-search" placeholder="Search Books">
+				</form>
+			</div>
 		</div>
 	</div>
+
+	<div id="full-nav">
+			<ul id="outer-list">
+				<li><span>Genres</span>
+					<ul id="inner-list">
+					{% for genre in genres %}
+						<li>
+							<a href="{{ url_for('showGenreList', genre_id = genre.id) }}">{{ genre.genre }}</a>
+						</li>
+					{% endfor %}
+					</ul>
+				</li>
+				<li>
+					<a href="{{ url_for('showAuthors') }}">Authors</a>
+				</li>
+				{% if user %}
+				<li>
+					<a href="{{ url_for('createBook') }}" id="new-book-link">Create New Book</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
 	
 	<main>
-		<div class="row">
+
+
+		<div class="m-container" id="feat-bks-cntr">
+		<div class="row" id="feat-title-wrap">
 			<div class="col-sm-12">
-				<h2 id="featured">Featured Books</h2>
+				<h2 id="feat-bks-title">Featured Books</h2>
 			</div>
 		</div>
-		<div class="row m-container">
-			<div class="col-sm-12">
-				<h5 class="popular">Popular Books</h5>
+		<div id="feat-bks-inner">
+		{% for book in feat_books %}
+			<div class="row" id="feat-bks">
+				<div class="col-xs-8" id="b-info-cont">
+					<div class="book-title">{{ book.title }}</div>
+					<div class="book-summary">{{ book.summary }}</div>
+				</div>
+				<div class="col-xs-4" id="feat-bk-link">
+					<a href="{{ url_for('showBook', book_id = book.id) }}">More info -></a>
+					<!--<img src="http://placehold.it/155x155" class="text-center" id="pop-image">-->
+				</div>
 			</div>
-		</div>
-		{% for book in books %}
-		<div class="row m-container" id="pop-books">
-			<div class="col-sm-6" id="b-info-cont">
-				<div class="book-title">{{ book.title }}</div>
-				<div class="book-summary">{{ book.summary }}</div>
-			</div>
-			<div class="col-sm-6">
-				<img src="http://placehold.it/155x155" class="text-center" id="pop-image">
-			</div>
-		</div>
 		{% endfor %}
-		<div class="row">
-			<div class="col-sm-12">
-				<h3>Featured Author</h3>
-			</div>
-			<div>
-				<h4>{{ author.name }}</h4>
-			</div>
+		</div>
 		</div>
 
-			<div class="col-sm-12" id="scroll-test"></div>
+		<div class="container" id="feat-authors">
+
+			<div class="row">
+				<h3 id="feat-auth-title">Featured Author</h3>
+			</div>
+
+			<div class="row" id="feat-auth-wrap">
+				<div class="col-sm-12">
+					<h4 id="feat-auth-name">{{ author.name }}</h4>
+				</div>
+				<div class="col-sm-12">
+					<ul id="feat-auth-ls">
+					{% for book in auth_books %}
+						<li><a href="{{ url_for('showBook', book_id = book.id) }}">{{ book.title }}</a></li>
+					{% endfor %}
+					</ul>
+				</div>
+			</div>
+
 		</div>
+		
+		<!--<div class="col-sm-12" id="scroll-test"></div>-->
+
 	</main>
+
+	<footer>
+		<div class="container-fluid">
+			<div class="row" id="footer">
+				<a href="#">Back to Top</a>
+			</div>
+		</div>
+	</footer>
 
 {% endblock %}

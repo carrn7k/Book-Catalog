@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 
 {% block content %}
-
+<div class="container-fluid" id="add-bg">
 
 <div class="row" id="add-container">
 	<h4>Add a New Book</h4>
@@ -15,8 +15,10 @@
 		<input type="text" class="add-input" name="author" id="add-author">
 		<label for="add-summary"><span>Summary</span></label>		
 		<textarea name="summary" class="add-input" id="add-summary"></textarea>
+		<label for="add-photo"><div id="url-span">Photo url *optional</div></label>
+		<input type="text" name="photo" id="add-url">
 		<label for="add-genre"><span>Genre</span></label>
-		<div class="row">
+		<div class="row inline-flex">
 			<div class="col-xs-6">
 				<select name="genres" class="add-input" id="add-genre">
 					{% for genre in genres %}
@@ -24,11 +26,13 @@
 		  			{% endfor %}
 				</select>
 			</div>
-			<div class="col-xs-6">
+			<div class="col-xs-6" id="create-btn-wrap">
 				<label><span>&nbsp;</span><input type="submit" value="create" id="create-btn"></label>
 			</div>
 		</div>
 	</form>
+</div>
+
 </div>
 
 {% endblock %}

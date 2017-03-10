@@ -2,33 +2,31 @@
 
 {% block content %}
 
-<div id="login-wrap">
-  <div class="text-center">
+<div class="page-style text-center">
     <div id="login-container">
-      <h4 class="text-center">Sign in with Google or Facebook</h4>
-      <div id="button-container">
-        <div class=="button-wrap">
+      <h3 class="text-center">Sign in with Google or Facebook</h3>
+      <div class="row" id="button-container">
+        <div class="button-wrap" id="g-wrap">
           <div class="g-signin2" 
-                data-scope="openid email"
-                data-clientid="370308867553-kf903h8h7t1doue4etpo0btu5jhabmbh.apps.googleusercontent.com"
-                data-redirecturi="postmessage"
-                data-accesstype="offline"
-                data-cookiepolicy="single_host_origin"
-                data-onsuccess="onSignIn"
-                data-onfailure="onSignInFailure"
-                data-approvalprompt="force"
-                data-width="93"
-                data-height="23">
+              data-scope="openid email"
+              data-clientid="370308867553-kf903h8h7t1doue4etpo0btu5jhabmbh.apps.googleusercontent.com"
+              data-redirecturi="postmessage"
+              data-accesstype="offline"
+              data-cookiepolicy="single_host_origin"
+              data-onsuccess="onSignIn"
+              data-onfailure="onSignInFailure"
+              data-approvalprompt="force"
+              data-width="122"
+              data-height="40">
           </div>
         </div>
-        <div class="button-wrap">
-          <fb:login-button class="col-xs-6" id="fb-sign-in" scope="public_profile,email" data-size="large" onlogin="fbLogin();">
+        <div class="button-wrap" id="f-wrap">
+          <fb:login-button class="col-xs-6" id="fb-sign-in" scope="public_profile,email" data-size="xlarge" onlogin="fbLogin();">
           </fb:login-button>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 <div id="result"></div>
 

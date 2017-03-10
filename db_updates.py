@@ -1,3 +1,4 @@
+# module for updating the DB
 
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -9,6 +10,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# return all columns in a specified table
 def get_all(category):
     if category == 'genres':
         return session.query(Genre).all()
@@ -18,7 +20,10 @@ def get_all(category):
         return session.query(Author).all()
     elif category == 'users':
         return session.query(User).all()
+    else:
+        print('Incorrect parameter input')
 
+# return a single column in a specified table
 def get_one(category, category_id):
     if category == 'genre':
         return session.query(Genre).filter_by(id = category_id).one()
@@ -33,13 +38,20 @@ def add_author(name):
     session.commit()
     return author.id
 
+def add_genre(genre):
+    genre = Genre(genre=genre)
+    session.add(genre)
+    session.commit()
+    return genre.id
+
+# add a book column to the Books table
 def add_book(title, summary, current_genre_id,
-             author_input, user_id):
+             author_input, user_id, photo):
 
     new_book = Books(title=title,
                      summary=summary,
                      genre_id=current_genre_id,
-                     user_id=user_id)
+                     user_id=user_id, photo=photo)
     session.add(new_book)
     
     # check if author exists in the DB
@@ -57,6 +69,9 @@ def add_book(title, summary, current_genre_id,
     session.commit()
     return new_book
 
+def delete_book(book):
+    session.delete(book)
+    session.commit()
 
 ## User Functions ############
 

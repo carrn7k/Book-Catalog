@@ -2,12 +2,23 @@
 
 {% block content %}
 
-<h4>Are you sure you want to delete {{ book.title }}?</h4>
-<form method="post">
-	<input type="submit" name="delete">
-</form>
-<div> 
-	<a href="{{ url_for('showBook', book_id=book.id) }}">cancel</a>
+
+<div class="page-style">
+	<div id="dlt-cntr">
+		<h4 id="delete-title">Are you sure you want to delete {{ book.title }}?</h4>
+		<div class="row" id="delete-form-wrp">
+			<form method="post" id="delete-form">
+				<div>
+					<input class="dlt-btn" value="Delete" type="submit" name="delete">
+				</div>
+				<div class="cancel">
+					<button>
+						<a class="dlt-btn" href="{{ url_for('showGenreList', genre_id = book.genre.id) }}">Cancel</a>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
 
 {% endblock %}

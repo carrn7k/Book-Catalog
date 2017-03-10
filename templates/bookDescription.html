@@ -2,14 +2,17 @@
 
 {% block content %}
 
-<h1>Book Description</h1>
-<br>
-<div>
-	<div>Written by -- {{ book.author.name }}</div>
-	<h3>{{ book.title }}</h3>
-	<p>{{ book.summary }}</p>
-
-	<div>Added by -- {{ book.user.name }}</div>
+<div class="container page-style">
+	<div class="row" id="inner-descriptions">
+		<h3>{{ book.title }}</h3>
+		<p>{{ book.summary }}</p>
+		<div>Written by -- {{ book.author.name }}</div>
+		<div>Added by -- {{ book.user.name }}</div>
+		<div class="home-btn">
+			<a href="/catalog">Home</a>
+		</div>
+	</div>
+	<br>
 </div>
 
 {% endblock %}
